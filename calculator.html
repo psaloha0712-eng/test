@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f4; }
+        #calculator { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        input[type="text"] { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        button { padding: 10px; margin: 5px; width: 60px; font-size: 18px; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <div id="calculator">
+        <input type="text" id="result" disabled>
+        <br>
+        <button onclick="clearResult()">C</button>
+        <button onclick="appendNumber('7')">7</button>
+        <button onclick="appendNumber('8')">8</button>
+        <button onclick="appendNumber('9')">9</button>
+        <button onclick="setOperation('/')">/</button>
+        <br>
+        <button onclick="appendNumber('4')">4</button>
+        <button onclick="appendNumber('5')">5</button>
+        <button onclick="appendNumber('6')">6</button>
+        <button onclick="setOperation('*')">*</button>
+        <br>
+        <button onclick="appendNumber('1')">1</button>
+        <button onclick="appendNumber('2')">2</button>
+        <button onclick="appendNumber('3')">3</button>
+        <button onclick="setOperation('-')">-</button>
+        <br>
+        <button onclick="appendNumber('0')">0</button>
+        <button onclick="calculate()">=</button>
+        <button onclick="setOperation('+')">+</button>
+    </div>
+    <script>
+        let currentInput = '';
+        let operation = '';
+
+        function appendNumber(number) {
+            currentInput += number;
+            document.getElementById('result').value = currentInput;
+        }
+
+        function setOperation(op) {
+            if (currentInput === '') return;
+            operation = op;
+            currentInput += ' ' + op + ' ';
+            document.getElementById('result').value = currentInput;
+        }
+
+        function calculate() {
+            const parts = currentInput.split(' ');
+            if (parts.length !== 3) return;
+            const num1 = parseFloat(parts[0]);
+            const num2 = parseFloat(parts[2]);
+            let result;
+            switch (operation) {
+                case '+': result = num1 + num2; break;
+                case '-': result = num1 - num2; break;
+                case '*': result = num1 * num2; break;
+                case '/': result = num2 !== 0 ? num1 / num2 : 'Error'; break;
+                default: return;
+            }
+            document.getElementById('result').value = result;
+            currentInput = '';
+            operation = '';
+        }
+
+        function clearResult() {
+            currentInput = '';
+            operation = '';
+            document.getElementById('result').value = '';
+        }
+    </script>
+</body>
+</html>
