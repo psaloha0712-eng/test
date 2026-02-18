@@ -47,8 +47,12 @@
 
         function setOperation(op) {
             if (currentInput === '') return;
+            if (operation !== '') {
+                currentInput = currentInput.replace(/\s[+\-\*\/]\s/, ' ' + op + ' ');
+            } else {
+                currentInput += ' ' + op + ' ';
+            }
             operation = op;
-            currentInput += ' ' + op + ' ';
             document.getElementById('result').value = currentInput;
         }
 
@@ -75,6 +79,47 @@
             operation = '';
             document.getElementById('result').value = '';
         }
+
+        function backspace() {
+            if (!currentInput) return;
+            currentInput = currentInput.slice(0, -1);
+            // trim trailing whitespace
+            currentInput = currentInput.replace(/\s+$/, '');
+            // detect and update operation (if any)
+            const opMatch = currentInput.match(/\s([+\-\*\/])\s/);
+            operation = opMatch ? opMatch[1] : '';
+            document.getElementById('result').value = currentInput;
+        }
+
+        // Keyboard support: digits, dot, operators, Enter(=), Backspace, Escape or 'c' to clear
+        document.addEventListener('keydown', function (e) {
+            const k = e.key;
+            if ((k >= '0' && k <= '9') || k === '.') {
+                e.preventDefault();
+                appendNumber(k);
+                return;
+            }
+            if (k === '+' || k === '-' || k === '*' || k === '/') {
+                e.preventDefault();
+                setOperation(k);
+                return;
+            }
+            if (k === 'Enter' || k === '=') {
+                e.preventDefault();
+                calculate();
+                return;
+            }
+            if (k === 'Backspace') {
+                e.preventDefault();
+                backspace();
+                return;
+            }
+            if (k === 'Escape' || k.toLowerCase() === 'c') {
+                e.preventDefault();
+                clearResult();
+                return;
+            }
+        });
     </script>
 </body>
 </html>
