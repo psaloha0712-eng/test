@@ -1,6 +1,0 @@
-*** Begin Patch
-*** Update File: calculator.html
-@@
--        <button onclick="clearResult()">C</button>
-+        <button onclick="clearResult()">Clear</button>
-*** End Patch
