@@ -47,8 +47,9 @@
 
         function setOperation(op) {
             if (currentInput === '') return;
-            if (operation !== '') {
-                currentInput = currentInput.replace(/\s[+\-\*\/]\s/, ' ' + op + ' ');
+            // If input ends with space + operator, replace it; otherwise append
+            if (/\s[+\-\*\/]\s$/.test(currentInput)) {
+                currentInput = currentInput.replace(/\s[+\-\*\/]\s$/, ' ' + op + ' ');
             } else {
                 currentInput += ' ' + op + ' ';
             }
@@ -57,21 +58,47 @@
         }
 
         function calculate() {
-            const parts = currentInput.split(' ');
-            if (parts.length !== 3) return;
-            const num1 = parseFloat(parts[0]);
-            const num2 = parseFloat(parts[2]);
-            let result;
-            switch (operation) {
-                case '+': result = num1 + num2; break;
-                case '-': result = num1 - num2; break;
-                case '*': result = num1 * num2; break;
-                case '/': result = num2 !== 0 ? num1 / num2 : 'Error'; break;
-                default: return;
+            if (!currentInput.trim()) return;
+            try {
+                // Parse and evaluate expression respecting order of operations
+                const result = evaluateExpression(currentInput);
+                document.getElementById('result').value = result;
+                currentInput = result.toString();
+                operation = '';
+            } catch (e) {
+                document.getElementById('result').value = 'Error';
+                currentInput = '';
+                operation = '';
             }
-            document.getElementById('result').value = result;
-            currentInput = '';
-            operation = '';
+        }
+
+        function evaluateExpression(expr) {
+            // Remove leading/trailing whitespace and split by operators
+            expr = expr.trim();
+            // First pass: handle * and /
+            let tokens = expr.split(/\s+/);
+            for (let i = 1; i < tokens.length; i += 2) {
+                if (tokens[i] === '*') {
+                    const result = parseFloat(tokens[i - 1]) * parseFloat(tokens[i + 1]);
+                    tokens.splice(i - 1, 3, result.toString());
+                    i -= 2;
+                } else if (tokens[i] === '/') {
+                    const divisor = parseFloat(tokens[i + 1]);
+                    if (divisor === 0) throw new Error('Division by zero');
+                    const result = parseFloat(tokens[i - 1]) / divisor;
+                    tokens.splice(i - 1, 3, result.toString());
+                    i -= 2;
+                }
+            }
+            // Second pass: handle + and -
+            let result = parseFloat(tokens[0]);
+            for (let i = 1; i < tokens.length; i += 2) {
+                const op = tokens[i];
+                const nextNum = parseFloat(tokens[i + 1]);
+                if (op === '+') result += nextNum;
+                else if (op === '-') result -= nextNum;
+            }
+            return result;
         }
 
         function clearResult() {
@@ -83,11 +110,11 @@
         function backspace() {
             if (!currentInput) return;
             currentInput = currentInput.slice(0, -1);
-            // trim trailing whitespace
-            currentInput = currentInput.replace(/\s+$/, '');
-            // detect and update operation (if any)
-            const opMatch = currentInput.match(/\s([+\-\*\/])\s/);
-            operation = opMatch ? opMatch[1] : '';
+            // trim trailing whitespace and operators
+            currentInput = currentInput.replace(/\s+$/, '').replace(/\s[+\-\*\/]\s*$/, '');
+            // detect last operation (if any)
+            const opMatches = currentInput.match(/\s([+\-\*\/])\s/g);
+            operation = opMatches ? opMatches[opMatches.length - 1].trim().split(/\s/)[1] : '';
             document.getElementById('result').value = currentInput;
         }
 
